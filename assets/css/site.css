@@ -28,6 +28,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 img { max-width: 100%; display: block; }
+[hidden] { display: none !important; }
 a { color: inherit; }
 h1, h2, h3 { font-family: var(--head); line-height: 1.1; margin: 0 0 .5em; letter-spacing: -.01em; }
 h2 { font-size: clamp(1.8rem, 3.6vw, 2.6rem); font-weight: 900; }
