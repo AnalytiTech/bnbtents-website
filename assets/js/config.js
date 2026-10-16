@@ -1,7 +1,7 @@
 // Site settings. Edit these, then reload the page; no build step is needed.
 window.BNB_CONFIG = {
   phone: "607-857-8595",
-  email: "golfinguy12@yahoo.com",
+  email: "nate@bnbtents.com",
 
   // Quote form delivery. Get a free access key at https://web3forms.com by
   // entering the address that should receive leads, then paste it here.
