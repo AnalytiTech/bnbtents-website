@@ -1,0 +1,29 @@
+name: Clear preview
+
+# When a change request's pull request is merged (approved) or closed (discarded),
+# take its preview down. Merging also publishes the live site through pages.yml.
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  clear:
+    if: startsWith(github.head_ref, 'change/')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Remove the preview if it's this request's
+        run: |
+          preview=$(gh api "repos/${{ github.repository }}/git/ref/heads/preview" --jq .object.sha 2>/dev/null || true)
+          if [ "$preview" = "${{ github.event.pull_request.head.sha }}" ]; then
+            gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/preview"
+            # Redeploy without /preview/ (this also wins over a merge's deploy that may have
+            # started before the preview branch was gone).
+            gh workflow run pages.yml --repo "${{ github.repository }}" --ref main
+          fi
+          gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/${{ github.head_ref }}" || true

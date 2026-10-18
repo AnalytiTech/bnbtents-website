@@ -18,9 +18,34 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: site
+
+      # A pending change request (the "preview" branch) is published under /preview/,
+      # hidden from search engines, until it's approved or discarded.
+      - uses: actions/checkout@v4
+        id: preview
+        continue-on-error: true
+        with:
+          ref: preview
+          path: preview-src
+
+      - name: Add the preview
+        if: steps.preview.outcome == 'success'
+        run: |
+          mkdir -p site/preview
+          rsync -a --exclude .git --exclude .github --exclude CLAUDE.md --exclude CNAME preview-src/ site/preview/
+          for f in site/preview/*.html; do
+            sed -i 's#<head>#<head>\n  <meta name="robots" content="noindex, nofollow">#' "$f"
+          done
+
+      - name: Leave out repo-only files
+        run: rm -rf site/.git site/.github site/CLAUDE.md
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: site
       - id: deployment
         uses: actions/deploy-pages@v4
